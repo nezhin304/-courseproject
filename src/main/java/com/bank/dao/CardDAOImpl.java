@@ -16,7 +16,7 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
 
     private Logger log = LoggerFactory.getLogger(BankAccountDAOImpl.class);
 
-    private static class Holder {
+     private static class Holder {
         static final CardDAO CARD_DAO = new CardDAOImpl();
     }
 

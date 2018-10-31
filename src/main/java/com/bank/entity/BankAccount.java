@@ -10,6 +10,8 @@ public class BankAccount {
 
     private BigDecimal credit;
 
+    private Boolean state;
+
     public String getAccount() {
         return account;
     }
@@ -32,5 +34,13 @@ public class BankAccount {
 
     public void setCredit(BigDecimal credit) {
         this.credit = credit;
+    }
+
+    public Boolean getState() {
+        return state;
+    }
+
+    public void setState(Boolean state) {
+        this.state = state;
     }
 }

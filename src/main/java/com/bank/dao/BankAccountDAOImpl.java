@@ -11,11 +11,11 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
 
     private Logger log = LoggerFactory.getLogger(BankAccountDAOImpl.class);
 
-    private static class Holder {
+     private static class Holder {
         static final BankAccountDAO BANK_ACCOUNT_DAO = new BankAccountDAOImpl();
     }
 
-    public static BankAccountDAO getInstance() {
+    static BankAccountDAO getInstance() {
         return Holder.BANK_ACCOUNT_DAO;
     }
 
@@ -28,10 +28,11 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
 
         try (Connection connection = Pool.getConnection()) {
             statement = connection
-                    .prepareStatement("INSERT INTO bank_accounts (account, deposit, credit) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    .prepareStatement("INSERT INTO bank_accounts (account, deposit, credit, state) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, bankAccount.getAccount());
             statement.setBigDecimal(2, bankAccount.getDeposit());
             statement.setBigDecimal(3, bankAccount.getCredit());
+            statement.setBoolean(4, bankAccount.getState());
             statement.executeUpdate();
             connection.commit();
             resultSet = statement.getGeneratedKeys();

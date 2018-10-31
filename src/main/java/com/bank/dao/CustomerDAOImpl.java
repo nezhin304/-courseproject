@@ -9,13 +9,13 @@ import java.sql.*;
 
 public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
 
-    Logger log = LoggerFactory.getLogger(CustomerDAOImpl.class);
+    private Logger log = LoggerFactory.getLogger(CustomerDAOImpl.class);
 
     private static class Holder {
         static final CustomerDAO CUSTOMER_DAO = new CustomerDAOImpl();
     }
 
-    public static CustomerDAO getInstance() {
+    static CustomerDAO getInstance() {
         return Holder.CUSTOMER_DAO;
     }
 

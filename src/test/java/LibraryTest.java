@@ -13,6 +13,7 @@ public class LibraryTest {
         bankAccount.setAccount("968574123");
         bankAccount.setDeposit(new BigDecimal(100000.000000));
         bankAccount.setCredit(new BigDecimal(0.000000));
+        bankAccount.setState(true);
 
         Card card = new Card();
         card.setNumber("1234 5678 9101 1121");

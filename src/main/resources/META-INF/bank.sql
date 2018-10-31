@@ -26,6 +26,7 @@ CREATE TABLE
   account CHARACTER VARYING(10) NOT NULL,
   deposit NUMERIC(15, 6)        NOT NULL,
   credit  NUMERIC(15, 6)        NOT NULL,
+  state   BOOLEAN               NOT NULL,
   UNIQUE (account)
 );
 
