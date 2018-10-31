@@ -1,9 +1,13 @@
-package dao;
+package com.bank.dao;
 
-import entity.BankAccount;
+import com.bank.entity.BankAccount;
 
 public interface BankAccountDAO {
 
-    void save(BankAccount bankAccount);
+    long save(BankAccount bankAccount);
+
+    long getId(BankAccount bankAccount);
+
+
 
 }

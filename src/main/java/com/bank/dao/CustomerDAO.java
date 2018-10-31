@@ -1,9 +1,13 @@
-package dao;
+package com.bank.dao;
+
+import com.bank.entity.Customer;
 
 public interface CustomerDAO {
 
-    void save(CustomerDAO customer);
+    long save(Customer customer);
 
-    CustomerDAO getCustomer(long id);
+    long getId(Customer customer);
+
+    Customer getCustomer(long id);
 
 }

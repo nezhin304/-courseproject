@@ -1,4 +1,4 @@
-package pool;
+package com.bank.pool;
 
 public class PoolException extends RuntimeException {
 

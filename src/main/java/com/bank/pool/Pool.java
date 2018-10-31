@@ -1,4 +1,4 @@
-package pool;
+package com.bank.pool;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;

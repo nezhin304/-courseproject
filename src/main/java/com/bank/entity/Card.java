@@ -1,10 +1,12 @@
-package entity;
+package com.bank.entity;
 
 public class Card {
 
     private String number;
 
     private BankAccount bankAccount;
+
+    private Customer customer;
 
     public String getNumber() {
         return number;
@@ -20,5 +22,13 @@ public class Card {
 
     public void setBankAccount(BankAccount bankAccount) {
         this.bankAccount = bankAccount;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
