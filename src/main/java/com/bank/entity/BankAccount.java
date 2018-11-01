@@ -3,6 +3,10 @@ package com.bank.entity;
 import java.math.BigDecimal;
 
 public class BankAccount {
+	
+	public BankAccount(){
+		
+	}
 
     private String account;
 

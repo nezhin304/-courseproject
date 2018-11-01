@@ -5,4 +5,6 @@ import com.bank.entity.Card;
 public interface CardDAO {
 
     void save(Card card);
+
+
 }

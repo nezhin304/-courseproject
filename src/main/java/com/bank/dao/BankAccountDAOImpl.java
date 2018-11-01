@@ -1,6 +1,7 @@
 package com.bank.dao;
 
 import com.bank.entity.BankAccount;
+import com.bank.entity.Card;
 import com.bank.pool.Pool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
         static final BankAccountDAO BANK_ACCOUNT_DAO = new BankAccountDAOImpl();
     }
 
-    static BankAccountDAO getInstance() {
+    public static BankAccountDAO getInstance() {
         return Holder.BANK_ACCOUNT_DAO;
     }
 
@@ -78,5 +79,33 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
         }
 
         return id;
+    }
+
+    @Override
+    public BankAccount getBalance(Card card) {
+
+        BankAccount bankAccount = new BankAccount();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try (Connection connection = Pool.getConnection()) {
+            statement = connection
+                    .prepareStatement("SELECT account, deposit, credit FROM bank_accounts WHERE account = ?");
+            statement.setString(1, card.getBankAccount().getAccount());
+            resultSet = statement.executeQuery();
+            connection.commit();
+            resultSet.next();
+            bankAccount.setAccount(resultSet.getString(1));
+            bankAccount.setDeposit(resultSet.getBigDecimal(2));
+            bankAccount.setCredit(resultSet.getBigDecimal(3));
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, resultSet);
+        }
+
+        return bankAccount;
+
     }
 }

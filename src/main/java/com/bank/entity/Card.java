@@ -1,6 +1,10 @@
 package com.bank.entity;
 
 public class Card {
+	
+	public Card(){
+		
+	}
 
     private String number;
 

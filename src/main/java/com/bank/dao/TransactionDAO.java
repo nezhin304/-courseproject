@@ -5,9 +5,7 @@ import com.bank.entity.Card;
 
 import java.math.BigDecimal;
 
-public interface Transaction {
-
-    BankAccount getBalance(Card card);
+public interface TransactionDAO {
 
     void getMoney(Card card, BigDecimal money);
 

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Customer {
+	
+	public Customer(){
+		
+	}
 
     private String name;
 
