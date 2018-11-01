@@ -31,17 +31,34 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
         boolean operationSuccess = false;
+        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
+        if (!bankAccount.getState()) {
+            return false;
+        }
 
-        if (bankAccount.getDeposit().compareTo(money) == 1) {
+        final String UPDATE_QUERY = "UPDATE bank_accounts SET deposit = ?, credit = ? WHERE account = ?";
+        BigDecimal newSumDeposit = null;
+        BigDecimal newSumCredit = null;
 
-            BigDecimal newSum = bankAccount.getDeposit().subtract(money);
+        if (bankAccount.getDeposit().compareTo(money) >= 0) {
+
+            newSumDeposit = bankAccount.getDeposit().subtract(money);
+            newSumCredit = bankAccount.getCredit();
+        }
+
+        if (bankAccount.getDeposit().compareTo(money) < 0){
+
+            newSumDeposit = new BigDecimal(0.0);
+            newSumCredit = bankAccount.getCredit().add(money.subtract(bankAccount.getDeposit()));
+        }
 
             try (Connection connection = Pool.getConnection()) {
                 statement = connection
-                        .prepareStatement("UPDATE bank_accounts SET deposit = ?");
-                statement.setBigDecimal(1, newSum);
+                        .prepareStatement( UPDATE_QUERY );
+                statement.setBigDecimal(1, newSumDeposit);
+                statement.setBigDecimal(2, newSumCredit);
+                statement.setString(3, bankAccount.getAccount());
                 operationSuccess = statement.execute();
                 connection.commit();
 
@@ -52,7 +69,7 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
             } finally {
                 Helper.closeStatementResultSet(statement, null);
             }
-        }
+
 
         return operationSuccess;
     }

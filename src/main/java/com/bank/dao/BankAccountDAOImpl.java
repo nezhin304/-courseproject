@@ -90,7 +90,7 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
 
         try (Connection connection = Pool.getConnection()) {
             statement = connection
-                    .prepareStatement("SELECT account, deposit, credit FROM bank_accounts WHERE account = ?");
+                    .prepareStatement("SELECT account, deposit, credit, state FROM bank_accounts WHERE account = ?");
             statement.setString(1, card.getBankAccount().getAccount());
             resultSet = statement.executeQuery();
             connection.commit();
@@ -99,6 +99,7 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
             bankAccount.setAccount(resultSet.getString(1));
             bankAccount.setDeposit(resultSet.getBigDecimal(2));
             bankAccount.setCredit(resultSet.getBigDecimal(3));
+            bankAccount.setState(resultSet.getBoolean(4));
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
