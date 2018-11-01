@@ -1,20 +1,17 @@
 import com.bank.dao.BankAccountDAOImpl;
-import com.bank.dao.CardDAOImpl;
-import com.bank.dao.TransactionDAO;
 import com.bank.dao.TransactionDAOImpl;
 import com.bank.entity.BankAccount;
 import com.bank.entity.Card;
-import com.bank.entity.Customer;
-import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
-public class LibraryTest {
+public class Test {
 
-    org.slf4j.Logger log = LoggerFactory.getLogger(LibraryTest.class);
+    org.slf4j.Logger log = LoggerFactory.getLogger(Test.class);
 
-    @Test public void testSomeLibraryMethod() {
+    @org.junit.Test
+    public void insertAndSelectEntityTest() {
 
         BankAccount bankAccount = new BankAccount();
         bankAccount.setAccount("968574124");
