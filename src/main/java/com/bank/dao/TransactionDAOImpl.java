@@ -30,7 +30,6 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
     public boolean getMoney(Card card, BigDecimal money) {
 
         PreparedStatement statement = null;
-        ResultSet resultSet = null;
         boolean operationSuccess = false;
         BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
         if (!bankAccount.getState()) {
