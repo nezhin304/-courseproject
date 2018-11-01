@@ -41,7 +41,6 @@ public class LibraryTest {
         BigDecimal depositNew = BankAccountDAOImpl.getInstance().getBalance(card).getDeposit();
         BigDecimal creditNew = BankAccountDAOImpl.getInstance().getBalance(card).getCredit();
 
-
         log.info(deposit.toString() + " " + credit);
         log.info(depositNew.toString() + " " + creditNew);
         if (!transaction) {

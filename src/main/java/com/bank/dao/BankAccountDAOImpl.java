@@ -110,4 +110,24 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
         return bankAccount;
 
     }
+
+    @Override
+    public void disable(Card card) {
+
+         PreparedStatement statement = null;
+
+        try (Connection connection = Pool.getConnection()) {
+            statement = connection
+                    .prepareStatement("UPDATE bank_accounts SET state = false WHERE account = ?");
+            statement.setString(1, card.getBankAccount().getAccount());
+            statement.executeUpdate();
+            connection.commit();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, null);
+        }
+
+    }
 }

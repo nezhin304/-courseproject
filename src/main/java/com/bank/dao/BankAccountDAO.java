@@ -11,6 +11,7 @@ public interface BankAccountDAO {
 
     BankAccount getBalance(Card card);
 
+    void disable(Card card);
 
 
 }
