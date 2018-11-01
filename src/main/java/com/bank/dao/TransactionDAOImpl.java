@@ -26,10 +26,35 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
     }
 
 
-
     @Override
-    public void getMoney(Card card, BigDecimal money) {
+    public boolean getMoney(Card card, BigDecimal money) {
 
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
+        boolean operationSuccess = false;
+
+        if (bankAccount.getDeposit().compareTo(money) == 1) {
+
+            BigDecimal newSum = bankAccount.getDeposit().subtract(money);
+
+            try (Connection connection = Pool.getConnection()) {
+                statement = connection
+                        .prepareStatement("UPDATE bank_accounts SET deposit = ?");
+                statement.setBigDecimal(1, newSum);
+                operationSuccess = statement.execute();
+                connection.commit();
+
+            } catch (SQLException e) {
+
+                log.error(e.getMessage(), e);
+
+            } finally {
+                Helper.closeStatementResultSet(statement, null);
+            }
+        }
+
+        return operationSuccess;
     }
 
     @Override

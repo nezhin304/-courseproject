@@ -95,6 +95,7 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
             resultSet = statement.executeQuery();
             connection.commit();
             resultSet.next();
+
             bankAccount.setAccount(resultSet.getString(1));
             bankAccount.setDeposit(resultSet.getBigDecimal(2));
             bankAccount.setCredit(resultSet.getBigDecimal(3));
