@@ -37,14 +37,16 @@ public class LibraryTest {
 
         BigDecimal deposit = BankAccountDAOImpl.getInstance().getBalance(card).getDeposit();
         BigDecimal credit = BankAccountDAOImpl.getInstance().getBalance(card).getCredit();
-        boolean transaction = TransactionDAOImpl.getInstance().getMoney(card, new BigDecimal(500.10));
+
+        TransactionDAOImpl.getInstance().addMoney(card, new BigDecimal(1000));
+//        TransactionDAOImpl.getInstance().getMoney(card, new BigDecimal(5000));
+
+
         BigDecimal depositNew = BankAccountDAOImpl.getInstance().getBalance(card).getDeposit();
         BigDecimal creditNew = BankAccountDAOImpl.getInstance().getBalance(card).getCredit();
 
         log.info(deposit.toString() + " " + credit);
         log.info(depositNew.toString() + " " + creditNew);
-        if (!transaction) {
-            log.info("Transaction not success");
-        }
+
     }
 }

@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
@@ -46,28 +45,28 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
             newSumCredit = bankAccount.getCredit();
         }
 
-        if (bankAccount.getDeposit().compareTo(money) < 0){
+        if (bankAccount.getDeposit().compareTo(money) < 0) {
 
             newSumDeposit = new BigDecimal(0.0);
             newSumCredit = bankAccount.getCredit().add(money.subtract(bankAccount.getDeposit()));
         }
 
-            try (Connection connection = Pool.getConnection()) {
-                statement = connection
-                        .prepareStatement( UPDATE_QUERY );
-                statement.setBigDecimal(1, newSumDeposit);
-                statement.setBigDecimal(2, newSumCredit);
-                statement.setString(3, bankAccount.getAccount());
-                operationSuccess = statement.execute();
-                connection.commit();
+        try (Connection connection = Pool.getConnection()) {
+            statement = connection
+                    .prepareStatement(UPDATE_QUERY);
+            statement.setBigDecimal(1, newSumDeposit);
+            statement.setBigDecimal(2, newSumCredit);
+            statement.setString(3, bankAccount.getAccount());
+            operationSuccess = statement.execute();
+            connection.commit();
 
-            } catch (SQLException e) {
+        } catch (SQLException e) {
 
-                log.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
 
-            } finally {
-                Helper.closeStatementResultSet(statement, null);
-            }
+        } finally {
+            Helper.closeStatementResultSet(statement, null);
+        }
 
 
         return operationSuccess;
@@ -76,5 +75,51 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
     @Override
     public void addMoney(Card card, BigDecimal money) {
 
+        PreparedStatement statement = null;
+        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
+        final String UPDATE_QUERY = "UPDATE bank_accounts SET deposit = ?, credit = ? WHERE account = ?";
+        BigDecimal newSumDeposit = null;
+        BigDecimal newSumCredit = null;
+
+        if (bankAccount.getCredit().compareTo(new BigDecimal(0.0)) > 0) {
+
+            if (bankAccount.getCredit().compareTo(money) < 0) {
+
+                newSumCredit = new BigDecimal(0.0);
+                newSumDeposit = money.subtract(bankAccount.getCredit());
+            }
+
+            if (bankAccount.getCredit().compareTo(money) > 0) {
+
+                newSumCredit = bankAccount.getCredit().subtract(money);
+                newSumDeposit = bankAccount.getDeposit();
+            }
+
+        }
+
+        if (bankAccount.getCredit().compareTo(new BigDecimal(0.0)) <= 0) {
+
+            newSumCredit = bankAccount.getCredit();
+            newSumDeposit = bankAccount.getDeposit().add(money);
+        }
+
+        try (Connection connection = Pool.getConnection()) {
+            statement = connection
+                    .prepareStatement(UPDATE_QUERY);
+            statement.setBigDecimal(1, newSumDeposit);
+            statement.setBigDecimal(2, newSumCredit);
+            statement.setString(3, card.getBankAccount().getAccount());
+            statement.executeUpdate();
+            connection.commit();
+
+        } catch (SQLException e) {
+
+            log.error(e.getMessage(), e);
+
+        } finally {
+            Helper.closeStatementResultSet(statement, null);
+        }
+
     }
 }
+
