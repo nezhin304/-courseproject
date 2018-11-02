@@ -76,36 +76,6 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
     }
 
     @Override
-    public BankAccount getBalance(Card card) {
-
-        BankAccount bankAccount = new BankAccount();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-
-        try (Connection connection = Pool.getConnection()) {
-            statement = connection
-                    .prepareStatement("SELECT account, deposit, credit, state FROM bank_accounts WHERE account = ?");
-            statement.setString(1, card.getBankAccount().getAccount());
-            resultSet = statement.executeQuery();
-            connection.commit();
-            resultSet.next();
-
-            bankAccount.setAccount(resultSet.getString(1));
-            bankAccount.setDeposit(resultSet.getBigDecimal(2));
-            bankAccount.setCredit(resultSet.getBigDecimal(3));
-            bankAccount.setState(resultSet.getBoolean(4));
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            Helper.closeStatementResultSet(statement, resultSet);
-        }
-
-        return bankAccount;
-
-    }
-
-    @Override
     public void disable(Card card) {
 
          PreparedStatement statement = null;
@@ -126,17 +96,25 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
     }
 
     @Override
-    public boolean deleteAccount(BankAccount bankAccount) {
+    public BankAccount getBankAccount(Card card) {
 
         PreparedStatement statement = null;
-        boolean result = false;
+        ResultSet resultSet = null;
+        BankAccount bankAccount = new BankAccount();
+        final String EXECUTE_QUERY = "SELECT ba.account, ba.deposit, ba.credit, ba.state FROM bank_accounts ba".concat(
+                " WHERE card_id = ?");
 
         try (Connection connection = Pool.getConnection()) {
-            statement = connection
-                    .prepareStatement("DELETE FROM bank_accounts WHERE account = ?");
-            statement.setString(1, bankAccount.getAccount());
-            result = statement.execute();
+            statement = connection.prepareStatement(EXECUTE_QUERY);
+            statement.setLong(1, CardDAOImpl.getInstance().getCardId(card));
+            resultSet = statement.executeQuery();
             connection.commit();
+            resultSet.next();
+
+            bankAccount.setAccount(resultSet.getString(1));
+            bankAccount.setDeposit(resultSet.getBigDecimal(2));
+            bankAccount.setCredit(resultSet.getBigDecimal(3));
+            bankAccount.setState(resultSet.getBoolean(4));
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -144,6 +122,6 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
             Helper.closeStatementResultSet(statement, null);
         }
 
-        return result;
+        return bankAccount;
     }
 }

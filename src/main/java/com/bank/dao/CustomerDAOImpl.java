@@ -86,9 +86,45 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
 
     @Override
     public Customer getCustomer(String phone) {
-        return null;
-    }
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        final String EXECUTE_QUERY = "SELECT cust.name, cust.surname, cust.phone, card.number, ba.account, ba.deposit, ba.credit, ba.state".concat(
+                " FROM customers cust JOIN cards card ON cust.id = card.customer_id JOIN  bank_accounts ba ON card.id = ba.card_id");
+        Customer customer = new Customer();
 
+        try (Connection connection = Pool.getConnection()) {
+
+            statement = connection.prepareStatement(EXECUTE_QUERY);
+            resultSet = statement.executeQuery();
+            connection.commit();
+            resultSet.next();
+
+            customer.setName(resultSet.getString(1));
+            customer.setSurname(resultSet.getString(2));
+            customer.setPhone(resultSet.getString(3));
+
+            Card card = new Card();
+            card.setNumber(resultSet.getString(4));
+
+            BankAccount bankAccount = new BankAccount();
+            bankAccount.setAccount(resultSet.getString(5));
+            bankAccount.setDeposit(resultSet.getBigDecimal(6));
+            bankAccount.setCredit(resultSet.getBigDecimal(7));
+            bankAccount.setState(resultSet.getBoolean(8));
+
+            bankAccount.setCard(card);
+            card.setBankAccount(bankAccount);
+            card.setCustomer(customer);
+            customer.setCard(card);
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, resultSet);
+        }
+
+        return customer;
+    }
 
     @Override
     public Collection<Customer> getAll() {
@@ -96,12 +132,10 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         Collection<Customer> customers = new ArrayList<>();
-        final String EXECUTE_QUERY = "SELECT cust.name, cust.surname, cust.phone, card.number, ba.account, ba.deposit, ba.credit, ba.state".concat(
-                " FROM customers cust JOIN cards card ON cust.id = card.customer_id JOIN  bank_accounts ba ON card.id = ba.card_id");
 
         try (Connection connection = Pool.getConnection()) {
 
-            statement = connection.prepareStatement(EXECUTE_QUERY);
+            statement = connection.prepareStatement("SELECT cust.name, cust.surname, cust.phone FROM customers cust");
             resultSet = statement.executeQuery();
             connection.commit();
 
@@ -111,20 +145,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
                 customer.setName(resultSet.getString(1));
                 customer.setSurname(resultSet.getString(2));
                 customer.setPhone(resultSet.getString(3));
-
-                Card card = new Card();
-                card.setNumber(resultSet.getString(4));
-
-                BankAccount bankAccount = new BankAccount();
-                bankAccount.setAccount(resultSet.getString(5));
-                bankAccount.setDeposit(resultSet.getBigDecimal(6));
-                bankAccount.setCredit(resultSet.getBigDecimal(7));
-                bankAccount.setState(resultSet.getBoolean(8));
-
-                bankAccount.setCard(card);
-                card.setBankAccount(bankAccount);
-                card.setCustomer(customer);
-                customer.setCard(card);
+                customer.setCards(CardDAOImpl.getInstance().getCards(customer));
                 customers.add(customer);
             }
 
@@ -138,26 +159,21 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
     }
 
     @Override
-    public boolean deleteCustomer(Customer customer) {
+    public void deleteCustomer(Customer customer) {
 
         PreparedStatement statement = null;
-        boolean result = false;
-        long id = 0;
 
         try (Connection connection = Pool.getConnection()) {
             statement = connection
                     .prepareStatement("DELETE FROM customers WHERE phone = ?");
             statement.setString(1, customer.getPhone());
-            result = statement.execute();
+            statement.execute();
             connection.commit();
-
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         } finally {
             Helper.closeStatementResultSet(statement, null);
         }
-
-        return result;
     }
 }

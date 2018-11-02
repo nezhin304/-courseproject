@@ -30,7 +30,7 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
 
         PreparedStatement statement = null;
         boolean operationSuccess = false;
-        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
+        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBankAccount(card);
         if (!bankAccount.getState()) {
             return false;
         }
@@ -76,7 +76,7 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
     public void addMoney(Card card, BigDecimal money) {
 
         PreparedStatement statement = null;
-        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBalance(card);
+        BankAccount bankAccount = BankAccountDAOImpl.getInstance().getBankAccount(card);
         final String UPDATE_QUERY = "UPDATE bank_accounts SET deposit = ?, credit = ? WHERE account = ?";
         BigDecimal newSumDeposit = null;
         BigDecimal newSumCredit = null;

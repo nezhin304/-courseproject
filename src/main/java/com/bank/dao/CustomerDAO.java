@@ -12,7 +12,7 @@ public interface CustomerDAO {
 
     Customer getCustomer(String phone);
 
-    boolean deleteCustomer(Customer customer);
+    void deleteCustomer(Customer customer);
 
     Collection<Customer> getAll();
 

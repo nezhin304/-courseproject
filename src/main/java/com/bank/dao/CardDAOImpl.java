@@ -64,46 +64,7 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
     @Override
     public Collection<Card> getAll() {
 
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        Collection<Card> cards = new ArrayList<>();
-
-        final String SELECT_QUERY = "SELECT cust.name, cust.surname, cust.phone, card.number as card, ba.account, ba.deposit, ba.credit".concat(
-                " FROM customers cust JOIN cards card ON cust.id = card.customer_id").concat(
-                " JOIN bank_accounts ba ON card.id = ba.card_id");
-
-        try (Connection connection = Pool.getConnection()) {
-
-            statement = connection.prepareStatement(SELECT_QUERY);
-            resultSet = statement.executeQuery();
-            connection.commit();
-
-            while (resultSet.next()) {
-
-                Customer customer = new Customer();
-                BankAccount bankAccount = new BankAccount();
-                Card card = new Card();
-
-                customer.setName(resultSet.getString(1));
-                customer.setSurname(resultSet.getString(2));
-                customer.setPhone(resultSet.getString(3));
-                card.setNumber(resultSet.getString(4));
-                bankAccount.setAccount(resultSet.getString(5));
-                bankAccount.setDeposit(resultSet.getBigDecimal(6));
-                bankAccount.setCredit(resultSet.getBigDecimal(7));
-                card.setCustomer(customer);
-                card.setBankAccount(bankAccount);
-                cards.add(card);
-
-            }
-
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            Helper.closeStatementResultSet(statement, resultSet);
-        }
-
-        return cards;
+                return null;
     }
 
     @Override
@@ -117,29 +78,22 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         Collection<Card> cards = new ArrayList<>();
-        final String EXECUTE_QUERY = "SELECT cards.number, ba.account, ba.deposit, ba.credit FROM cards".concat(
-                " JOIN bank_accounts ba ON cards.bank_account_id = ba.id").concat(
-                " WHERE customer_id = (SELECT id FROM customers WHERE phone = ?)");
 
 
         try (Connection connection = Pool.getConnection()) {
 
             statement = connection
-                    .prepareStatement(EXECUTE_QUERY);
+                    .prepareStatement("SELECT number FROM cards WHERE customer_id = ?");
+            statement.setLong(1, CustomerDAOImpl.getInstance().getId(customer));
             resultSet = statement.executeQuery();
             connection.commit();
 
             while (resultSet.next()) {
 
                 Card card = new Card();
-                BankAccount bankAccount = new BankAccount();
                 card.setNumber(resultSet.getString(1));
-                bankAccount.setAccount(resultSet.getString(2));
-                bankAccount.setDeposit(resultSet.getBigDecimal(3));
-                bankAccount.setCredit(resultSet.getBigDecimal(4));
-                card.setBankAccount(bankAccount);
+                card.setBankAccount(BankAccountDAOImpl.getInstance().getBankAccount(card));
                 cards.add(card);
-
             }
 
         } catch (SQLException e) {

@@ -9,10 +9,8 @@ public interface BankAccountDAO {
 
     long getId(BankAccount bankAccount);
 
-    BankAccount getBalance(Card card);
-
     void disable(Card card);
 
-    boolean deleteAccount(BankAccount bankAccount);
+    BankAccount getBankAccount(Card card);
 
 }
