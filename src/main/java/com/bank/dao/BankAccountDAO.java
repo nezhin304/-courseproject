@@ -13,5 +13,6 @@ public interface BankAccountDAO {
 
     void disable(Card card);
 
+    boolean deleteAccount(BankAccount bankAccount);
 
 }

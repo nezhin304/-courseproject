@@ -1,6 +1,9 @@
 package com.bank.dao;
 
 import com.bank.entity.Customer;
+import javafx.print.Collation;
+
+import java.util.Collection;
 
 public interface CustomerDAO {
 
@@ -8,6 +11,12 @@ public interface CustomerDAO {
 
     long getId(Customer customer);
 
-    Customer getCustomer(long id);
+    Customer getCustomer(String phone);
+
+    void deleteAll();
+
+    boolean deleteCustomer(Customer customer);
+
+    Collection<Customer> getAll();
 
 }

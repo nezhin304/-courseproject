@@ -1,11 +1,14 @@
 package com.bank.dao;
 
+import com.bank.entity.Card;
 import com.bank.entity.Customer;
 import com.bank.pool.Pool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
 
@@ -15,7 +18,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
         static final CustomerDAO CUSTOMER_DAO = new CustomerDAOImpl();
     }
 
-    static CustomerDAO getInstance() {
+    public static CustomerDAO getInstance() {
         return Holder.CUSTOMER_DAO;
     }
 
@@ -52,7 +55,6 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
         }
 
 
-
         return id;
 
     }
@@ -74,7 +76,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
             id = resultSet.getLong(1);
 
         } catch (SQLException e) {
-                log.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } finally {
             Helper.closeStatementResultSet(statement, resultSet);
         }
@@ -83,7 +85,71 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
     }
 
     @Override
-    public Customer getCustomer(long id) {
+    public Customer getCustomer(String phone) {
         return null;
+    }
+
+
+    @Override
+    public Collection<Customer> getAll() {
+
+        Collection<Card> cards = CardDAOImpl.getInstance().getAll();
+        Collection<Customer> customers = new ArrayList<>();
+
+        for (Card card : cards) {
+
+            Customer customer = card.getCustomer();
+            customers.add(customer);
+        }
+
+
+        return customers;
+    }
+
+    @Override
+    public boolean deleteCustomer(Customer customer) {
+
+        PreparedStatement statement = null;
+        boolean result = false;
+        long id = 0;
+
+        try (Connection connection = Pool.getConnection()) {
+            statement = connection
+                    .prepareStatement("DELETE FROM customers WHERE phone = ?");
+            statement.setString(1, customer.getPhone());
+            result = statement.execute();
+            connection.commit();
+
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, null);
+        }
+
+        return result;
+    }
+
+    @Override
+    public void deleteAll() {
+
+        Collection<Customer> customers = getAll();
+        for (Customer customer : customers) {
+
+            Collection<Card> cards = CardDAOImpl.getInstance().getCards(customer);
+
+            for (Card card : cards ) {
+
+                CardDAOImpl.getInstance().deleteCard(card);
+            }
+
+            for (Card card : cards) {
+
+                BankAccountDAOImpl.getInstance().deleteAccount(card.getBankAccount());
+            }
+
+            CustomerDAOImpl.getInstance().deleteCustomer(customer);
+
+        }
     }
 }

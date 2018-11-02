@@ -130,4 +130,26 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
         }
 
     }
+
+    @Override
+    public boolean deleteAccount(BankAccount bankAccount) {
+
+        PreparedStatement statement = null;
+        boolean result = false;
+
+        try (Connection connection = Pool.getConnection()) {
+            statement = connection
+                    .prepareStatement("DELETE FROM bank_accounts WHERE account = ?");
+            statement.setString(1, bankAccount.getAccount());
+            result = statement.execute();
+            connection.commit();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, null);
+        }
+
+        return result;
+    }
 }
