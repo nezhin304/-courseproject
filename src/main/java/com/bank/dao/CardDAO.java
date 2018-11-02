@@ -15,6 +15,4 @@ public interface CardDAO {
 
     void deleteCard(Card card);
 
-    Collection<Card> getAll();
-
 }

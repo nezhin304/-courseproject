@@ -1,5 +1,4 @@
 import com.bank.dao.BankAccountDAOImpl;
-import com.bank.dao.CardDAOImpl;
 import com.bank.dao.CustomerDAOImpl;
 import com.bank.dao.TransactionDAOImpl;
 import com.bank.entity.BankAccount;
@@ -10,7 +9,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.Collection;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class CardDAOTest {
 
@@ -37,7 +36,6 @@ public class CardDAOTest {
 
         CustomerDAOImpl.getInstance().deleteCustomer(customer);
         BankAccountDAOImpl.getInstance().save(bankAccount);
-
 
         Collection<Customer> customers = CustomerDAOImpl.getInstance().getAll();
         Customer customerResult = customers.stream()
@@ -70,5 +68,6 @@ public class CardDAOTest {
         assertEquals("968574124", bankAccount2.getAccount());
         assertEquals(0, new BigDecimal(1000.0).compareTo(bankAccount2.getDeposit()));
         assertEquals(0, new BigDecimal(0.0).compareTo(bankAccount2.getCredit()));
+
     }
 }

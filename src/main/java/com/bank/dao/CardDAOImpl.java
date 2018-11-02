@@ -1,6 +1,5 @@
 package com.bank.dao;
 
-import com.bank.entity.BankAccount;
 import com.bank.entity.Card;
 import com.bank.entity.Customer;
 import com.bank.pool.Pool;
@@ -62,14 +61,23 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
     }
 
     @Override
-    public Collection<Card> getAll() {
-
-                return null;
-    }
-
-    @Override
     public void deleteCard(Card card) {
 
+        PreparedStatement statement = null;
+
+        try (Connection connection = Pool.getConnection()) {
+
+            statement = connection
+                    .prepareStatement("DELETE FROM cards WHERE number = ?");
+            statement.setString(1, card.getNumber());
+            statement.execute();
+            connection.commit();
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, null);
+        }
     }
 
     @Override
@@ -78,7 +86,6 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         Collection<Card> cards = new ArrayList<>();
-
 
         try (Connection connection = Pool.getConnection()) {
 

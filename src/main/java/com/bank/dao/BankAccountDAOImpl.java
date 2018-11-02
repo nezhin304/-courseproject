@@ -25,10 +25,10 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        long id = 0;
+
+
 
         long cardId = CardDAOImpl.getInstance().save(bankAccount.getCard());
-
 
         try (Connection connection = Pool.getConnection()) {
             statement = connection
@@ -44,7 +44,6 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
         } catch (SQLException e) {
 
                             log.error(e.getMessage(), e);
-
         } finally {
             Helper.closeStatementResultSet(statement, resultSet);
         }

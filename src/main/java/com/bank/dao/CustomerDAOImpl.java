@@ -46,7 +46,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
 
             if (e.getMessage().contains("duplicate key value")) {
 
-                id = getId(customer);
+                id = CustomerDAOImpl.getInstance().getId(customer);
 
             } else {
                 log.error(e.getMessage(), e);

@@ -15,8 +15,6 @@ public class Customer {
 
     private String phone;
 
-    private Collection<String> roles = new ArrayList<>();
-
     private Collection<Card> cards = new ArrayList<>();
 
     public String getName() {
@@ -43,24 +41,8 @@ public class Customer {
         this.phone = phone;
     }
 
-    public Collection<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Collection<String> roles) {
-        this.roles = roles;
-    }
-
-    public void setRole(String role) {
-        roles.add(role);
-    }
-
     public Collection<Card> getCards() {
         return cards;
-    }
-
-    public void setCards(Collection<Card> cards) {
-        this.cards = cards;
     }
 
     public void setCard(Card card) {

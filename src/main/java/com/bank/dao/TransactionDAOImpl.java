@@ -24,7 +24,6 @@ public class TransactionDAOImpl extends AbstractDAO implements TransactionDAO {
         return Holder.TRANSACTION_DAO;
     }
 
-
     @Override
     public boolean getMoney(Card card, BigDecimal money) {
 
