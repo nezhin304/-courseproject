@@ -45,6 +45,10 @@ public class Customer {
         return cards;
     }
 
+    public void setCards(Collection<Card> cards) {
+        this.cards = cards;
+    }
+
     public void setCard(Card card) {
         cards.add(card);
     }
