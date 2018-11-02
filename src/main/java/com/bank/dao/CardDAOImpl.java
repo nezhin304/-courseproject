@@ -7,10 +7,7 @@ import com.bank.pool.Pool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,33 +24,41 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
     }
 
     @Override
-    public void save(Card card) {
+    public long save(Card card) {
 
         PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        BankAccount bankAccount = card.getBankAccount();
-        Customer customer = card.getCustomer();
-
-
-        long bankAccountId = BankAccountDAOImpl.getInstance().save(bankAccount);
-        long customerId = CustomerDAOImpl.getInstance().save(customer);
+        long customerId = CustomerDAOImpl.getInstance().save(card.getCustomer());
+        long cardId = 0;
 
         try (Connection connection = Pool.getConnection()) {
 
             statement = connection
-                    .prepareStatement("INSERT INTO cards (number, customer_id, bank_account_id) VALUES (?,?,?)");
+                    .prepareStatement("INSERT INTO cards (number, customer_id) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, card.getNumber().replaceAll("\\D", ""));
             statement.setLong(2, customerId);
-            statement.setLong(3, bankAccountId);
             statement.execute();
             connection.commit();
+            resultSet = statement.getGeneratedKeys();
+            resultSet.next();
+            cardId = resultSet.getLong(1);
 
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+
+            if (e.getMessage().contains("duplicate key value")) {
+
+                cardId = CardDAOImpl.getInstance().getCardId(card);
+
+            } else {
+
+                log.error(e.getMessage(), e);
+            }
         } finally {
-            Helper.closeStatementResultSet(statement, null);
+            Helper.closeStatementResultSet(statement, resultSet);
         }
 
+        return cardId;
     }
 
     @Override
@@ -65,7 +70,7 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
 
         final String SELECT_QUERY = "SELECT cust.name, cust.surname, cust.phone, card.number as card, ba.account, ba.deposit, ba.credit".concat(
                 " FROM customers cust JOIN cards card ON cust.id = card.customer_id").concat(
-                        " JOIN bank_accounts ba ON card.bank_account_id = ba.id");
+                " JOIN bank_accounts ba ON card.id = ba.card_id");
 
         try (Connection connection = Pool.getConnection()) {
 
@@ -73,7 +78,7 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
             resultSet = statement.executeQuery();
             connection.commit();
 
-            while (resultSet.next()){
+            while (resultSet.next()) {
 
                 Customer customer = new Customer();
                 BankAccount bankAccount = new BankAccount();
@@ -111,7 +116,7 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        Collection<Card> cards = new  ArrayList<>();
+        Collection<Card> cards = new ArrayList<>();
         final String EXECUTE_QUERY = "SELECT cards.number, ba.account, ba.deposit, ba.credit FROM cards".concat(
                 " JOIN bank_accounts ba ON cards.bank_account_id = ba.id").concat(
                 " WHERE customer_id = (SELECT id FROM customers WHERE phone = ?)");
@@ -144,5 +149,30 @@ public class CardDAOImpl extends AbstractDAO implements CardDAO {
         }
 
         return cards;
+    }
+
+    @Override
+    public long getCardId(Card card) {
+
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        long cardId = 0;
+
+        try (Connection connection = Pool.getConnection()) {
+
+            statement = connection.prepareStatement("SELECT id FROM cards WHERE number = ?");
+            statement.setString(1, card.getNumber());
+            resultSet = statement.executeQuery();
+            connection.commit();
+            resultSet.next();
+            cardId = resultSet.getLong(1);
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, resultSet);
+        }
+
+        return cardId;
     }
 }

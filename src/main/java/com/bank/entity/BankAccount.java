@@ -3,12 +3,14 @@ package com.bank.entity;
 import java.math.BigDecimal;
 
 public class BankAccount {
-	
-	public BankAccount(){
-		
-	}
+
+    public BankAccount() {
+
+    }
 
     private String account;
+
+    private Card card;
 
     private BigDecimal deposit;
 
@@ -22,6 +24,14 @@ public class BankAccount {
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public Card getCard() {
+        return card;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
     }
 
     public BigDecimal getDeposit() {

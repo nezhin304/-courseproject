@@ -1,5 +1,6 @@
 package com.bank.dao;
 
+import com.bank.entity.BankAccount;
 import com.bank.entity.Card;
 import com.bank.entity.Customer;
 import com.bank.pool.Pool;
@@ -50,13 +51,12 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
             } else {
                 log.error(e.getMessage(), e);
             }
+
         } finally {
             Helper.closeStatementResultSet(statement, resultSet);
         }
 
-
         return id;
-
     }
 
     @Override
@@ -93,15 +93,46 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
     @Override
     public Collection<Customer> getAll() {
 
-        Collection<Card> cards = CardDAOImpl.getInstance().getAll();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
         Collection<Customer> customers = new ArrayList<>();
+        final String EXECUTE_QUERY = "SELECT cust.name, cust.surname, cust.phone, card.number, ba.account, ba.deposit, ba.credit, ba.state".concat(
+                " FROM customers cust JOIN cards card ON cust.id = card.customer_id JOIN  bank_accounts ba ON card.id = ba.card_id");
 
-        for (Card card : cards) {
+        try (Connection connection = Pool.getConnection()) {
 
-            Customer customer = card.getCustomer();
-            customers.add(customer);
+            statement = connection.prepareStatement(EXECUTE_QUERY);
+            resultSet = statement.executeQuery();
+            connection.commit();
+
+            while (resultSet.next()) {
+
+                Customer customer = new Customer();
+                customer.setName(resultSet.getString(1));
+                customer.setSurname(resultSet.getString(2));
+                customer.setPhone(resultSet.getString(3));
+
+                Card card = new Card();
+                card.setNumber(resultSet.getString(4));
+
+                BankAccount bankAccount = new BankAccount();
+                bankAccount.setAccount(resultSet.getString(5));
+                bankAccount.setDeposit(resultSet.getBigDecimal(6));
+                bankAccount.setCredit(resultSet.getBigDecimal(7));
+                bankAccount.setState(resultSet.getBoolean(8));
+
+                bankAccount.setCard(card);
+                card.setBankAccount(bankAccount);
+                card.setCustomer(customer);
+                customer.setCard(card);
+                customers.add(customer);
+            }
+
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            Helper.closeStatementResultSet(statement, resultSet);
         }
-
 
         return customers;
     }
@@ -128,28 +159,5 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
         }
 
         return result;
-    }
-
-    @Override
-    public void deleteAll() {
-
-        Collection<Customer> customers = getAll();
-        for (Customer customer : customers) {
-
-            Collection<Card> cards = CardDAOImpl.getInstance().getCards(customer);
-
-            for (Card card : cards ) {
-
-                CardDAOImpl.getInstance().deleteCard(card);
-            }
-
-            for (Card card : cards) {
-
-                BankAccountDAOImpl.getInstance().deleteAccount(card.getBankAccount());
-            }
-
-            CustomerDAOImpl.getInstance().deleteCustomer(customer);
-
-        }
     }
 }

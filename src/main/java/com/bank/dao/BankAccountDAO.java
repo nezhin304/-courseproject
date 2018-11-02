@@ -5,7 +5,7 @@ import com.bank.entity.Card;
 
 public interface BankAccountDAO {
 
-    long save(BankAccount bankAccount);
+    void save(BankAccount bankAccount);
 
     long getId(BankAccount bankAccount);
 

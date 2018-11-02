@@ -7,11 +7,13 @@ import java.util.Collection;
 
 public interface CardDAO {
 
-    void save(Card card);
+    long save(Card card);
 
-    void deleteCard(Card card);
+    long getCardId(Card card);
 
     Collection<Card> getCards(Customer customer);
+
+    void deleteCard(Card card);
 
     Collection<Card> getAll();
 

@@ -21,39 +21,33 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
     }
 
     @Override
-    public long save(BankAccount bankAccount) {
+    public void save(BankAccount bankAccount) {
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         long id = 0;
 
+        long cardId = CardDAOImpl.getInstance().save(bankAccount.getCard());
+
+
         try (Connection connection = Pool.getConnection()) {
             statement = connection
-                    .prepareStatement("INSERT INTO bank_accounts (account, deposit, credit, state) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    .prepareStatement("INSERT INTO bank_accounts (account, deposit, credit, state, card_id) VALUES (?,?,?,?,?)");
             statement.setString(1, bankAccount.getAccount());
             statement.setBigDecimal(2, bankAccount.getDeposit());
             statement.setBigDecimal(3, bankAccount.getCredit());
             statement.setBoolean(4, bankAccount.getState());
+            statement.setLong(5, cardId);
             statement.executeUpdate();
             connection.commit();
-            resultSet = statement.getGeneratedKeys();
-            resultSet.next();
-            id = resultSet.getLong(1);
 
         } catch (SQLException e) {
 
-            if (e.getMessage().contains("duplicate key value")) {
+                            log.error(e.getMessage(), e);
 
-                id = getId(bankAccount);
-
-            } else {
-                log.error(e.getMessage(), e);
-            }
         } finally {
             Helper.closeStatementResultSet(statement, resultSet);
         }
-
-        return id;
     }
 
     @Override
