@@ -88,8 +88,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
     public Customer getCustomer(String phone) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        final String EXECUTE_QUERY = "SELECT cust.name, cust.surname, cust.phone, card.number, ba.account, ba.deposit, ba.credit, ba.state".concat(
-                " FROM customers cust JOIN cards card ON cust.id = card.customer_id JOIN  bank_accounts ba ON card.id = ba.card_id");
+        final String EXECUTE_QUERY = "SELECT name, surname, phone from customers where phone = ?";
         Customer customer = new Customer();
 
         try (Connection connection = Pool.getConnection()) {
@@ -102,20 +101,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
             customer.setName(resultSet.getString(1));
             customer.setSurname(resultSet.getString(2));
             customer.setPhone(resultSet.getString(3));
-
-            Card card = new Card();
-            card.setNumber(resultSet.getString(4));
-
-            BankAccount bankAccount = new BankAccount();
-            bankAccount.setAccount(resultSet.getString(5));
-            bankAccount.setDeposit(resultSet.getBigDecimal(6));
-            bankAccount.setCredit(resultSet.getBigDecimal(7));
-            bankAccount.setState(resultSet.getBoolean(8));
-
-            bankAccount.setCard(card);
-            card.setBankAccount(bankAccount);
-            card.setCustomer(customer);
-            customer.setCard(card);
+            customer.setCards(CardDAOImpl.getInstance().getCards(customer));
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -135,7 +121,7 @@ public class CustomerDAOImpl extends AbstractDAO implements CustomerDAO {
 
         try (Connection connection = Pool.getConnection()) {
 
-            statement = connection.prepareStatement("SELECT cust.name, cust.surname, cust.phone FROM customers cust");
+            statement = connection.prepareStatement("SELECT name, surname, phone FROM customers");
             resultSet = statement.executeQuery();
             connection.commit();
 

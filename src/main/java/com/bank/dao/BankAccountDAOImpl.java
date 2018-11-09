@@ -25,9 +25,6 @@ public class BankAccountDAOImpl extends AbstractDAO implements BankAccountDAO {
 
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-
-
-
         long cardId = CardDAOImpl.getInstance().save(bankAccount.getCard());
 
         try (Connection connection = Pool.getConnection()) {
